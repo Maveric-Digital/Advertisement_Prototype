@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Landing Page</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 400px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+        }
+
+        .container h2 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .form-group button[type="submit"] {
+            width: 100%;
+            padding: 8px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        #payrollInfo {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="checkboxForm">
+            <div class="form-group">
+                <label for="checkbox1">
+                    <input type="checkbox" id="checkbox1"> Can we retrieve your credit information?
+                </label>
+            </div>
+            <div class="form-group">
+                <button type="submit">Proceed</button>
+            </div>
+        </form>
+
+        <div id="payrollInfo"></div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const encodedPayrollData = urlParams.get('data');
+        const payrollData = JSON.parse(decodeURIComponent(encodedPayrollData));
+        var paycheque;
+        var dob;
+        var ssnLast4;
+
+        if (payrollData) {
+            paycheque = payrollData.paycheque;
+            dob = payrollData.dob;
+            ssnLast4 = payrollData.ssnLast4;
+
+            // Store paycheque in memory (local variable)
+            var paychequeInMemory = paycheque;
+
+            // document.getElementById('payrollInfo').innerText = `DOB: ${dob}\nSSN Last 4 digits: ${ssnLast4}`;
+        }
+
+        document.getElementById("checkboxForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var checkbox1 = document.getElementById("checkbox1");
+
+            if (checkbox1.checked) {
+                // Store the necessary data in localStorage
+                localStorage.setItem("dob", dob);
+                localStorage.setItem("ssnLast4", ssnLast4);
+                localStorage.setItem("paycheque", JSON.stringify(paycheque));
+
+                // Retrieve credit score using DOB and last 4 SSN
+                var dob = localStorage.getItem("dob");
+                var ssnLast4 = localStorage.getItem("ssnLast4");
+
+                fetch("http://127.0.0.1:8080/api/credit-score", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        dob: dob,
+                        ssnLast4: ssnLast4
+                    })
+                })
+                .then(function(response) {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error("Failed to retrieve credit score.");
+                    }
+                })
+                .then(function(data) {
+                    var creditScore = data.creditScore;
+
+                    // Store the credit score, dob, ssn, and paycheque in localStorage
+                    localStorage.setItem("creditScore", creditScore);
+                    localStorage.setItem("dob", dob);
+                    localStorage.setItem("ssnLast4", ssnLast4);
+                    localStorage.setItem("paycheque", paychequeInMemory);
+
+                    // Redirect to the form page
+                    window.location.href = "form.html";
+                })
+                .catch(function(error) {
+                    console.error(error);
+                    alert("Failed to retrieve credit score.");
+                });
+            } else {
+                alert("Sorry, we need your permission to proceed, otherwise we cannot go ahead with the process!");
+            }
+        });
+  </script>
+</body>
+</html>

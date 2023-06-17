@@ -1,0 +1,40 @@
+{
+    "mappings": [
+        {
+            "request": {
+                "method": "POST",
+                "url": "/api/credit-score",
+                "headers": {
+                  "Content-Type": {
+                    "equalTo": "application/json"
+                  }
+                }
+              },
+              "response": {
+                "status": 200,
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "jsonBody": {
+                  "creditScore": "{{randomInt lower=300 upper=850}}"
+                }
+              }
+        },
+        {
+            "request": {
+                "method":"OPTIONS",
+                "url": "/api/credit-score"
+              },
+              "response": {
+                "status": 204,
+                "headers": {
+                    "access-control-allow-methods": "POST",
+                    "access-control-allow-credentials": "true",
+                    "Content-Type": "application/json",
+                    "access-control-allow-origin": "*",
+                    "access-control-allow-headers": "Content-type"
+                }
+              }
+        }
+    ]
+}

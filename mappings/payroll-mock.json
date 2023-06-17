@@ -1,0 +1,18 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/api/payroll"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "transformers": ["response-template"],
+        "body": "{\"paycheque\": \"{{randomDecimal lower=99.9 upper=9999.9}}\", \"dob\": \"{{randomInt lower=1 upper=28}}-{{randomInt lower=1 upper=12}}-{{randomInt lower=1920 upper=2002}}\", \"ssnLast4\": \"{{randomValue length=4 type='NUMERIC'}}\"}"
+      }
+    }
+  ]
+}
